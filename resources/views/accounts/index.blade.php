@@ -1,6 +1,6 @@
 @extends('layouts.layouts')
 
-@section('title', 'Dashboard')
+@section('title', content: 'Dashboard')
 
 @section('content')
     <div class="card">
@@ -21,7 +21,9 @@
                     <h3 class="card-title">Accounts Dashboard</h3>
                 </div>
                 <div class="col-md-6 text-end">
-                    <button class="btn btn-primary">Create Account CSV</button>
+                    <a href="/accounts/createCSV">
+                        <button class="btn btn-primary">Create Account CSV</button>
+                    </a>
                     <a href="/accounts/create">
                         <button class="btn btn-primary">Create Account</button>
                     </a>
@@ -43,7 +45,10 @@
                         <td>{{ $account->username }}</td>
                         <td>{{ $account->phone_number }}</td>
                         <td>{{ $account->status }}</td>
-                        <td><a href=""><button class="btn btn-danger">Delete</button></a></td>
+                        <td>
+                            <a href=""><button class="btn btn-danger">Delete</button></a>
+                            <a href="{{ route('accounts.edit', $account->id) }}"><button class="btn btn-secondary">Edit</button></a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
