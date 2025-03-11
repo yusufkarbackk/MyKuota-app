@@ -86,4 +86,9 @@ class AccountController extends Controller
             return redirect()->route('accounts.index')->with('error', 'Error updating account: ' . $th->getMessage());
         }
     }
+
+    public function destroy($id)
+    {
+        return $this->accountService->delete($id);
+    }
 }

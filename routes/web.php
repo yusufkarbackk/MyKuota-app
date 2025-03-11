@@ -28,7 +28,7 @@ Route::post('/accounts/storeCSV', [AccountController::class, 'storeCSV']);
 Route::post('/accounts/store', [AccountController::class, 'store']);
 Route::get('/accounts/{id}/edit', [AccountController::class, 'edit'])->name('accounts.edit');
 Route::put('/accounts/{id}', [AccountController::class, 'update'])->name('accounts.update');
-
+Route::delete('/accounts/{id}/delete', [AccountController::class, 'destroy'])->name('accounts.destroy');
 Route::get('/sites', [SiteController::class, 'index']);
 
 Route::get('/downloadAccountCSVTemplate', [TemplateController::class, 'downloadAccountCSVTemplate']);

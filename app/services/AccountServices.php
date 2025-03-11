@@ -58,7 +58,7 @@ class AccountServices
 
             while (($row = fgetcsv($handle, 0, ',')) !== false) {
                 $csvData = array_combine($headers, $row);
-               
+
                 $phoneNumber = $csvData['Nomor'] ?? null;
                 $username = $csvData['Username'] ?? null;
                 $password = $csvData['Password'] ?? null;
@@ -97,6 +97,23 @@ class AccountServices
         } catch (\Throwable $th) {
             DB::rollBack(); // Rollback on error
             return redirect()->to('/accounts')->with('failed', 'Error: ' . $th->getMessage());
+        }
+    }
+
+    public function delete($id)
+    {
+        try {
+            $account = Account::findOrFail($id);
+            if ($account->status == 'in use') {
+                return redirect()->to('/accounts')->with('error', 'Account still in use');
+
+            } else {
+                $account->delete();
+                return redirect()->to('/accounts')->with('success', 'Account deleted successfully');
+            }
+
+        } catch (\Throwable $th) {
+            return redirect()->to('/accounts')->with('error', 'Error: ' . $th->getMessage());
         }
     }
 }

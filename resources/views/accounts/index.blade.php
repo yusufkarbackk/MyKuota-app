@@ -46,8 +46,15 @@
                         <td>{{ $account->phone_number }}</td>
                         <td>{{ $account->status }}</td>
                         <td>
-                            <a href=""><button class="btn btn-danger">Delete</button></a>
-                            <a href="{{ route('accounts.edit', $account->id) }}"><button class="btn btn-secondary">Edit</button></a>
+                            <form action="{{ route('accounts.destroy', $account->id) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to delete this account?');"
+                                style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                            <a href="{{ route('accounts.edit', $account->id) }}"><button
+                                    class="btn btn-secondary">Edit</button></a>
                         </td>
                     </tr>
                 @endforeach
