@@ -48,15 +48,15 @@ class AccountServices
             // Open and read the file
             $fileStream = Storage::path($filePath);
             if (($handle = fopen($fileStream, "r")) === false) {
-                return redirect()->to('/accounts')->with('failed', 'Failed to read the file');
+                return redirect()->to(path: '/accounts')->with('error', 'Failed to read the file');
             }
 
-            $headers = fgetcsv($handle, 0, ','); // Read CSV headers
+            $headers = fgetcsv($handle, 0, ';'); // Read CSV headers
             $bulkToInsert = [];
 
             DB::beginTransaction(); // Begin transaction
 
-            while (($row = fgetcsv($handle, 0, ',')) !== false) {
+            while (($row = fgetcsv($handle, 0, ';')) !== false) {
                 $csvData = array_combine($headers, $row);
 
                 $phoneNumber = $csvData['Nomor'] ?? null;

@@ -2,7 +2,7 @@
 
 @section('title', 'Create Account')
 
-@section('content')
+@section(section: 'content')
     <div class="card">
         @if (session('success'))
             <div class="alert alert-success">

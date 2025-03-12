@@ -25,4 +25,24 @@ class TemplateController extends Controller
         fclose($output);
         exit;
     }
+
+    public function downloadSitesCSVTemplate()
+    {
+        // Set the headers for the file download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="Clients_Template.csv"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // Open a file pointer to output the CSV data
+        $output = fopen('php://output', 'w');
+
+        // Write column headers
+        fputcsv($output, ["Site", "Company", 'Nomor', 'Username', 'Password'], ';');
+
+        // Close the file pointer
+        fclose($output);
+        exit;
+    }
 }
