@@ -22,7 +22,6 @@ class SiteController extends Controller
     public function index()
     {
         $topUsage = Site::orderBy('usage', 'desc')->limit(5)->get();
-
         $sites = Site::with('account')->get();
         return view('sites.index', compact('sites', 'topUsage'));
     }
@@ -48,6 +47,110 @@ class SiteController extends Controller
     public function storeCSV(Request $request)
     {
         return $this->siteServices->storeCSV($request);
+    }
+
+    public function edit($id)
+    {
+        // Fetch the site and related account data
+        $client = Site::select('sites.id AS site_id', 'sites.*', 'accounts.*')
+            ->leftJoin('accounts', 'sites.account_id', '=', 'accounts.id')
+            ->where('sites.id', $id)
+            ->first();
+
+        // Fetch available accounts
+        $accounts = Account::select('id', 'phone_number')
+            ->where('status', 'available')
+            ->get();
+
+        // Pass data to the view
+        return view('sites.edit', compact('client', 'accounts'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $site = Site::with('account')->findOrFail($id); // Retrieve original data with account relationship
+            $formData = $request->all();
+            $changes = [];
+
+            // Compare original data with the new data, and store only changes
+            foreach ($formData as $key => $value) {
+                if (isset($site->$key) && $site->$key != $value) {
+                    $changes[$key] = $value;
+                }
+            }
+            //dd($changes);
+
+            // If there are any changes, update the database
+            if (!empty($changes)) {
+                if (isset($changes['site'])) {
+                    $site->site = $changes['site'];
+                }
+                if (isset($changes['company'])) {
+                    $site->company = $changes['company'];
+                }
+                if (isset($changes['account_id'])) {
+                    $oldAccountId = $site->account_id;
+                    $newAccountId = $changes['account_id'];
+
+                    // Update site data with the new phone number
+                    $site->update([
+                        'account_id' => $newAccountId,
+                        'usage' => 0
+                    ]);
+
+                    // Set old account as available
+                    Account::where('id', $oldAccountId)->update([
+                        'status' => 'available',
+                        'quota' => NULL,
+                        'is_complete' => "0",
+                        'chrome_profile' => "",
+                        'profile_path' => "",
+                        'updated_at' => NULL,
+                        'update_status' => "",
+                        'error_log' => ""
+                    ]);
+
+                    // Set new account as in use
+                    Account::where('id', $newAccountId)->update(['status' => 'in use']);
+
+                    // // Insert into site history
+                    // SiteHistory::create([
+                    //     'site_id' => $id,
+                    //     'account_id' => $newPhoneNumberId
+                    // ]);
+
+                    // Get new account credentials
+                    $accountData = Account::select('username', 'password', 'id')->where('id', $newAccountId)->first();
+
+                    // Commit transaction
+
+                    // Run additional actions outside the transaction
+                    // try {
+                    //     $accountChromeProfile = Account::select('chrome_profile')->where('id', $oldAccountId)->first();
+
+                    //     if ($accountChromeProfile && $accountChromeProfile->chrome_profile) {
+                    //         app('App\Services\LibService')->deleteChromeProfile($accountChromeProfile->chrome_profile);
+                    //     }
+
+                    //     app('App\Services\LibService')->runCreateClient($accountData->username, $accountData->password, $accountData->id);
+                    // } catch (\Throwable $th) {
+                    //     Log::error("Error in additional actions: " . $th->getMessage());
+                    // }
+                }
+                DB::commit();
+                $site->save();
+                //dd($site);// <-- Save the model
+
+            }
+
+            return redirect()->route('home')->with('success', 'Client updated successfully.');
+
+        } catch (\Throwable $th) {
+            DB::rollBack(); // Rollback transaction if error occurs
+            return redirect()->route('home')->with('error', "Error: " . $th->getMessage());
+        }
     }
 
     public function showTopUsage()

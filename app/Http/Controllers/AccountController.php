@@ -81,7 +81,7 @@ class AccountController extends Controller
                 $account->update($updateData);
             }
 
-            return redirect()->route('accounts.index')->with('success', 'Account updated successfully!');
+            return redirect()->route(route: 'accounts.index')->with('success', 'Account updated successfully!');
         } catch (\Throwable $th) {
             return redirect()->route('accounts.index')->with('error', 'Error updating account: ' . $th->getMessage());
         }
@@ -90,5 +90,32 @@ class AccountController extends Controller
     public function destroy($id)
     {
         return $this->accountService->delete($id);
+    }
+
+    public function terminate(Request $request, $accountId)
+    {
+        try {
+            $account = Account::findOrFail($accountId); // Get account data
+
+            if ($account->status === 'available') {
+                // Update account status
+                $account->update([
+                    'status' => 'terminated',
+                    'quota' => 0,
+                    'complete' => '',
+                    'chrome_profile' => "",
+                    'update_status' => "",
+                    'profile_path' => "",
+                    'created_at' => "",
+                    'updated_at' => ""
+                ]);
+                return redirect()->route(route: 'accounts.index')->with('success', 'Account terminate successfully!');
+            } else if ($account->status === 'in use') {
+                return redirect()->route(route: 'accounts.index')->with('error', 'Account still in use');
+            }
+
+        } catch (\Throwable $th) {
+            return redirect()->route(route: 'accounts.index')->with('error', 'Error while terminating account');
+        }
     }
 }

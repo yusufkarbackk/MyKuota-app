@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('site');
             $table->string('company');
             $table->foreignId('account_id')->constrained('accounts');
-            $table->integer('usage');
+            $table->integer('usage')->default(0);
             $table->timestamps();
         });
     }

@@ -1,49 +1,56 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs;
 
 use App\Models\Account;
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Crypt;
 use Log;
 
-class CreateSites extends Command
+class RunCreateSiteCommand implements ShouldQueue
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'create-site:run {username} {password} {account_id}';
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $username;
+    protected $password;
+    protected $accountId;
+
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * Create a new job instance.
      */
-    protected $description = 'Command description';
+    public function __construct($username, $password, $accountId)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        $this->accountId = $accountId;
+    }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      */
     public function handle()
     {
         $accountModel = new Account();
 
         // Fetch arguments
-        $username = $this->argument('username');
-        $password = $this->argument('password');
-        $account_id = $this->argument('account_id');
+        $username = $this->username;
+        $account_id = $this->accountId;
+        $password = $this->password;
 
         try {
-            $this->cliWrite("Username: {$username} - Password: {$password} run for script", 'yellow');
+            Log::error("Status: " . print_r($username, true));
 
             $decryptedPassword = Crypt::decryptString($password);
-            $this->cliWrite("Username: {$username} - Password: {$decryptedPassword} - ID: {$account_id} run for script", 'yellow');
+            //$this->cliWrite("Username: {$username} - Password: {$decryptedPassword} - ID: {$account_id} run for script", 'yellow');
 
             // Execute the Python script
-            $command = "python C:\\laragon\\www\\dev\\get_kuota_script\\create_new_client.py " .
+            $command = "python C:\\laragon\\www\\dev\\MyKuota-script\\create_new_client.py " .
                 escapeshellarg($username) . " " .
                 escapeshellarg($decryptedPassword);
             $result = shell_exec($command);
@@ -61,10 +68,10 @@ class CreateSites extends Command
                         'update_status' => 'success'
                     ])
                 ) {
-                    $this->cliWrite("Username: {$username} updated successfully", 'green');
+                    // $this->cliWrite("Username: {$username} updated successfully", 'green');
                     Log::info("Username: {$username} updated successfully");
                 } else {
-                    $this->cliWrite("Error updating data for Username: {$username}", 'red');
+                    //$this->cliWrite("Error updating data for Username: {$username}", 'red');
                     Log::error("Error updating data for Username: {$username}");
                 }
             } else {
@@ -80,17 +87,4 @@ class CreateSites extends Command
             Log::error("Error: {$th->getTraceAsString()} - {$th->getMessage()}");
         }
     }
-
-    private function cliWrite($message, $color)
-    {
-        if (app()->runningInConsole()) {
-            $colorMap = [
-                'yellow' => 'comment',
-                'green' => 'info',
-                'red' => 'error'
-            ];
-            Artisan::call('line', ['message' => $message, '--style' => $colorMap[$color] ?? 'info']);
-        }
-    }
 }
-

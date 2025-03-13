@@ -55,6 +55,13 @@
                             </form>
                             <a href="{{ route('accounts.edit', $account->id) }}"><button
                                     class="btn btn-secondary">Edit</button></a>
+                            <form action="{{ route('accounts.terminate', $account->id) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to terminate this account?');"
+                                style="display: inline;">
+                                @csrf
+                                @method('POST')
+                                <button type="submit" class="btn btn-warning">Terminate</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

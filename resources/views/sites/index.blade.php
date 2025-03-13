@@ -92,6 +92,9 @@
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
+                            <a href="{{ route('sites.edit', $site->id) }}">
+                                <button type="submit" class="btn btn-secondary">Edit</button>
+                            </a>
                         </td>
                     </tr>
                 @endforeach
@@ -116,6 +119,53 @@
                     }
                 },
             });
+        });
+    </script>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch('/update-chart');
+            const data = await response.json();
+            return data;
+        }
+
+        async function renderChart() {
+            const data = await fetchData();
+
+            const ctx = document.getElementById('myPieChart').getContext('2d');
+            const chartData = {
+                labels: ['Success', 'Failure'],
+                datasets: [{
+                    data: [data.success, data.failure],
+                    backgroundColor: ['#36A2EB', '#FF6384'],
+                    hoverOffset: 10
+                }]
+            };
+
+            const chart = new Chart(ctx, {
+                type: 'pie',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+
+            return chart;
+        }
+
+        let myChart;
+        async function updateChart() {
+            const data = await fetchData();
+            myChart.data.datasets[0].data = [data.success, data.failure];
+            myChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            myChart = await renderChart();
+            setInterval(updateChart, 60000); // Update every 60 seconds
         });
     </script>
 @endpush

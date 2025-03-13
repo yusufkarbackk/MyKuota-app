@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\RunCreateSiteCommand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
@@ -29,11 +30,11 @@ class Site extends Model
 
             if ($site->account) {
                 //dd($site->account);
-                Artisan::call('create-site:run', [ // ✅ Ensure the command name is correct
-                    'username' => $site->account->username,
-                    'password' => $site->account->password,
-                    'account_id' => $site->account->id
-                ]);
+                dispatch(new RunCreateSiteCommand(
+                    $site->account->username,
+                    $site->account->password,
+                    $site->account->id
+                ));
             }
         });
     }
