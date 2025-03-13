@@ -56,14 +56,14 @@ class SiteServices
         // Store the file in storage/app/uploads
         $filePath = $file->storeAs('uploads', $file->hashName());
 
-        if (($handle = fopen(storage_path("app/$filePath"), "r")) !== false) {
-            $headers = fgetcsv($handle, 0, ';');
+        if (($handle = fopen(storage_path("app/{$filePath}"), "r")) !== false) {
+            $headers = fgetcsv($handle, 0, ',');
 
             try {
-                while (($row = fgetcsv($handle, 0, ';')) !== false) {
+                while (($row = fgetcsv($handle, 0, ',')) !== false) {
                     $csvData[] = array_combine($headers, $row);
                     $lastRow = end($csvData);
-
+                    //dd($lastRow);
                     $site = trim($lastRow['Site']);
                     $company = trim($lastRow['Company']);
                     $phoneNumber = trim($lastRow['Nomor']);
