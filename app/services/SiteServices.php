@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\Account;
+use App\Models\History;
 use App\Models\Site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class SiteServices
 {
@@ -57,10 +59,10 @@ class SiteServices
         $filePath = $file->storeAs('uploads', $file->hashName());
 
         if (($handle = fopen(storage_path("app/{$filePath}"), "r")) !== false) {
-            $headers = fgetcsv($handle, 0, ',');
+            $headers = fgetcsv($handle, 0, ';');
 
             try {
-                while (($row = fgetcsv($handle, 0, ',')) !== false) {
+                while (($row = fgetcsv($handle, 0, ';')) !== false) {
                     $csvData[] = array_combine($headers, $row);
                     $lastRow = end($csvData);
                     //dd($lastRow);
@@ -81,7 +83,7 @@ class SiteServices
                     if ($existingAccount) {
                         // If number exists but is 'in use', reject it
                         if ($existingAccount->status == 'in use') {
-                            return redirect()->to(path: '/sites')->with('error', "{$existingAccount->phoneNumber} is in use");
+                            return redirect()->to(path: '/sites')->with('error', "{$existingAccount->phone_number} is in use");
                         } else {
                             // Assign existing account to new site
                             $site = Site::create([
@@ -126,6 +128,78 @@ class SiteServices
                 return redirect()->to('/sites')->with('error', $th->getMessage());
             }
         }
+    }
+
+    public function getMonthlyUsage($accountId)
+    {
+        // Fetch history data from the History model
+        $historyData = History::where('account_id', $accountId)
+            ->orderBy('created_at', 'asc') // Ensure chronological order
+            ->get(['quota', 'created_at', 'action']);
+
+        $usageData = [];
+        $previousQuota = null;
+
+        foreach ($historyData as $row) {
+            $currentQuota = floatval($row->quota); // Convert quota to float
+            $month = date('Y-m', strtotime($row->timestamp)); // Extract year-month
+
+            if ($previousQuota !== null) {
+                if ($previousQuota < $currentQuota) {
+                    $previousQuota = $currentQuota;
+                    continue;
+                } else {
+                    $usage = $previousQuota - $currentQuota;
+                    $usageData[$month] = isset($usageData[$month]) ? $usageData[$month] + $usage : $usage;
+                }
+            }
+
+            // Update previousQuota for the next iteration
+            $previousQuota = $currentQuota;
+        }
+
+        //dd($usageData);
+
+        return $usageData;
+    }
+
+    public function show($id)
+    {
+        // Initialize Custom Library
+
+        // Fetch client site details with account information
+        // Fetch the site based on the given ID
+        $site = Site::with('account')->findOrFail($id);
+        // Find the correct account based on the phone number (or any correct identifier)
+        $account = Account::where('id', $site->account_id)->first();
+        $site->account = $account;
+        //dd(response()->json($site));
+
+        // If client not found, redirect with an error message
+        if (!$site) {
+            return redirect()->back()->with('error', 'Client not found.');
+        }
+
+        // Fetch site history with join query
+        // $siteHistory = DB::table('site_history')
+        //     ->leftJoin('detail_site', 'detail_site.id', '=', 'site_history.site_id')
+        //     ->leftJoin('accounts', 'accounts.id', '=', 'site_history.account_id')
+        //     ->where('site_history.site_id', $client->site_id)
+        //     ->orderBy('site_history.created_at', 'desc')
+        //     ->get(['detail_site.id AS site_id', 'detail_site.site', 'site_history.created_at', 'accounts.phoneNumber']);
+
+        // Fetch history data
+        // $history = History::where('account_id', $site->account->id)
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
+        // Fetch usage data using the CustomLibrary
+        $usage = $this->getMonthlyUsage($id);
+        $data = response()->json($site);
+        //dd($data);
+        return $data;
+
+
     }
 
 }

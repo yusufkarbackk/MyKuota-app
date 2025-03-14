@@ -26,6 +26,15 @@ class SiteController extends Controller
         return view('sites.index', compact('sites', 'topUsage'));
     }
 
+    public function show($id)
+    {
+        //dd($id);
+        $repsonse = $this->siteServices->show($id);
+        //dd($data);
+        $data = json_decode($repsonse->getContent(), true);
+        return view('sites.detail', compact('data'));
+    }
+
     public function create()
     {
         $data = Account::select('id', 'phone_number')->where('status', 'available')->get();

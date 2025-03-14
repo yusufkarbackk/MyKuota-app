@@ -38,7 +38,7 @@ Route::post('/sites/storeCSV', [SiteController::class, 'storeCSV'])->name('sites
 Route::delete('/sites/{id}/delete', [SiteController::class, 'delete'])->name('sites.delete');
 Route::get('/sites/{id}/edit', [SiteController::class, 'edit'])->name('sites.edit');
 Route::put('/sites/{id}', [SiteController::class, 'update'])->name('sites.update');
-
+Route::get('/sites/{id}/detail', [SiteController::class,'show'])->name('sites.detail');
 Route::get('/sites/unupdated', [SiteController::class, 'showUnupdatedClients'])->name('sites.unUpdated');
 Route::get('/downloadAccountCSVTemplate', [TemplateController::class, 'downloadAccountCSVTemplate']);
 Route::get('/downloadSiteCSVTemplate', [TemplateController::class, 'downloadSitesCSVTemplate']);

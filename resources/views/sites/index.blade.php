@@ -78,7 +78,11 @@
             <tbody>
                 @foreach ($sites as $site)
                     <tr>
-                        <td>{{ $site->site }}</td>
+                        <td>
+                            <a href="{{route('sites.detail', $site->id)}}">
+                                {{ $site->site }}
+                            </a>
+                        </td>
                         <td>{{ $site->company }}</td>
                         <td>{{ $site->account->phone_number }}</td>
                         <td>{{ $site->account->quota }}</td>
