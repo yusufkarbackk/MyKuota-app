@@ -37,19 +37,20 @@ class CreateSites extends Command
         $account_id = $this->argument('account_id');
 
         try {
-            $this->cliWrite("Username: {$username} - Password: {$password} run for script", 'yellow');
+            dump("Username: {$username} - Password: {$password} run for script");
 
             $decryptedPassword = Crypt::decryptString($password);
-            $this->cliWrite("Username: {$username} - Password: {$decryptedPassword} - ID: {$account_id} run for script", 'yellow');
 
             // Execute the Python script
-            $command = "python C:\\laragon\\www\\dev\\get_kuota_script\\create_new_client.py " .
+            $command = "python " . escapeshellarg("C:\\laragon\\www\\dev\\MyKuota-script\\create_new_client.py") . " " .
                 escapeshellarg($username) . " " .
                 escapeshellarg($decryptedPassword);
             $result = shell_exec($command);
+            dump("Result: " . print_r($result, true));
 
             $resultData = json_decode($result, true);
-            Log::error("Status: " . print_r($resultData, true));
+
+            //Log::error("Status: " . print_r($resultData, true));
 
             if ($resultData['status'] == 'success') {
                 if (
@@ -57,7 +58,7 @@ class CreateSites extends Command
                         'quota' => $resultData['quota'],
                         'chrome_profile' => $resultData['chrome_profile'],
                         'profile_path' => $resultData['profile_path'],
-                        'complete' => 'complete',
+                        'is_complete' => 1,
                         'update_status' => 'success'
                     ])
                 ) {
