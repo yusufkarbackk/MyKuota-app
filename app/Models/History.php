@@ -17,4 +17,8 @@ class History extends Model
         'quota',
         'action',
     ];
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

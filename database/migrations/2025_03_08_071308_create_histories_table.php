@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained('accounts');
             $table->string('phone_number');
             $table->integer('quota');
-            $table->string('action');
+            $table->string('action')->default("");
             $table->timestamps();
         });
     }
