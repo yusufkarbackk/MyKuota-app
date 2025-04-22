@@ -213,6 +213,47 @@ class SiteController extends Controller
         return redirect()->to(path: '/sites')->with('error', 'Site not found');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        // Validate incoming request
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $sites = Site::whereIn('id', $request->ids)->get();
+
+            // Collect all account IDs that need to be updated
+            $accountIds = $sites->pluck('account_id')->filter()->unique()->toArray();
+
+            // Update these accounts to available status
+            Account::whereIn('id', $accountIds)
+                ->update(['status' => 'available']);
+
+            // Then delete the sites
+            Site::whereIn('id', $request->ids)->delete();
+
+            // Commit transaction
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sites deleted and accounts updated successfully'
+            ]);
+        } catch (\Throwable $th) {
+            // Roll back transaction if something goes wrong
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function showUnupdatedClients()
     {
         $sites = DB::table('sites')

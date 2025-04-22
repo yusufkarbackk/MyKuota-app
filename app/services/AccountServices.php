@@ -51,12 +51,12 @@ class AccountServices
                 return redirect()->to(path: '/accounts')->with('error', 'Failed to read the file');
             }
 
-            $headers = fgetcsv($handle, 0, ';'); // Read CSV headers
+            $headers = fgetcsv($handle, 0, ','); // Read CSV headers
             $bulkToInsert = [];
 
             DB::beginTransaction(); // Begin transaction
 
-            while (($row = fgetcsv($handle, 0, ';')) !== false) {
+            while (($row = fgetcsv($handle, 0, ',')) !== false) {
                 $csvData = array_combine($headers, $row);
 
                 $phoneNumber = $csvData['Nomor'] ?? null;
@@ -69,8 +69,9 @@ class AccountServices
 
                 // Check if account exists
                 if (Account::where('phone_number', $phoneNumber)->exists()) {
-                    fclose($handle);
-                    return redirect()->to('/accounts')->with('failed', "{$phoneNumber} already exists");
+                    // fclose($handle);
+                    // return redirect()->to('/accounts')->with('failed', "{$phoneNumber} already exists");
+                    continue;
                 }
 
                 // Prepare data for batch insert

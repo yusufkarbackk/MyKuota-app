@@ -48,7 +48,7 @@
         <div class="card-header">
             <div class="row w-100 align-items-center">
                 <div class="col-md-6">
-                    <h3 class="card-title">Sites Dashboard</h3>
+                    <h1 class="card-title">Sites Dashboard</h1>
                 </div>
                 <div class="col-md-6 text-end">
                     <a href="{{ route('sites.createCSV') }}">
@@ -60,12 +60,17 @@
                     <a href="{{ route('sites.unUpdated') }}">
                         <button class="btn btn-primary">Check Not Updated Sites</button>
                     </a>
+                    <a href="">
+                        <button class="btn btn-danger" id="delete-selected" disabled>Delete Selected</button>
+                    </a>
+
                 </div>
             </div>
         </div>
-        <table id="accountsTable" class="table table-bordered table-striped">
+        <table id="sitesTable" class="table table-bordered table-striped">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Site</th>
                     <th>Company</th>
                     <th>Phone Number</th>
@@ -77,7 +82,9 @@
             </thead>
             <tbody>
                 @foreach ($sites as $site)
-                    <tr>
+                    <tr data-site-id="{{ $site->id }}">
+                        <td><input type="checkbox" class="rowCheckbox"></td>
+
                         <td>
                             <a href="{{route('sites.detail', $site->id)}}">
                                 {{ $site->site }}
@@ -110,20 +117,97 @@
     <script>
         $(document).ready(function () {
             console.log("initilize data tables")
-            $('#topUsageTable').DataTable();
+            $('#topUsageTable').DataTable({
+                layout: {
+                    topStart: null,
+                    topEnd: null,
+                    bottomStart: null,
+                    bottomEnd: null,
+                    bottom: null
+                }
+            });
 
-            $('#accountsTable').DataTable({
+            var table = $('#sitesTable').DataTable({
+                select: {
+                    style: 'multi', // Allow multiple row selection
+                    selector: 'td:first-child input[type="checkbox"]'
+                },
                 layout: {
                     topStart: {
                         buttons: [{
                             extend: 'csv',
                             className: 'btn btn-success',
                             fieldSeparator: ';'
-                        }, 'excel', 'pdf']
+                        }, 'excel', 'pdf',
+
+                        {
+                            text: 'Select All',
+                            action: function () {
+                                // Check all checkboxes
+                                $('input[type="checkbox"]', table.rows().nodes()).prop('checked', true);
+                                // Select all rows
+                                table.rows().select();
+                            }
+                        },
+                        {
+                            text: 'Delete Selected',
+                            action: function () {
+                                // Get selected rows
+                                var selectedRows = table.rows({ selected: true });
+
+                                // Make sure there are rows selected
+                                if (selectedRows.count() === 0) {
+                                    alert('No rows selected');
+                                    return;
+                                }
+
+                                // Extract IDs from the selected rows
+                                // Assuming your data has an 'id' property or column
+                                var siteIds = [];
+                                selectedRows.every(function () {
+                                    var rowNode = this.node();
+                                    var siteId = $(rowNode).attr('data-site-id');
+                                    if (siteId) {
+                                        siteIds.push(siteId);
+                                    }
+                                });
+                                console.log(siteIds)
+
+                                if (siteIds.length === 0) {
+                                    alert('Could not determine IDs for selected rows');
+                                    return;
+                                }
+
+                                // Confirm deletion
+                                if (confirm('Are you sure you want to delete ' + selectedRows.count() + ' selected records?')) {
+                                    // Send AJAX request to Laravel controller
+                                    $.ajax({
+                                        url: '{{ route('sites.bulkDelete') }}', // Your Laravel route
+                                        method: 'POST',
+                                        data: {
+                                            ids: siteIds,
+                                            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+                                        },
+                                        success: function (response) {
+                                            // Remove rows from the table upon successful deletion
+                                            selectedRows.remove().draw(false);
+
+                                            // Show success message
+                                            alert('Selected records have been deleted successfully');
+                                        },
+                                        error: function (error) {
+                                            console.error('Error deleting records:', error);
+                                            alert('Error deleting records. Please try again.');
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        ]
                     }
                 },
             });
-        });
+        })
     </script>
 
     <script>
@@ -172,4 +256,6 @@
             setInterval(updateChart, 60000); // Update every 60 seconds
         });
     </script>
+
+
 @endpush

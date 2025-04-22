@@ -68,10 +68,8 @@ class RunCreateSiteCommand implements ShouldQueue
                         'update_status' => 'success'
                     ])
                 ) {
-                    // $this->cliWrite("Username: {$username} updated successfully", 'green');
                     Log::info("Username: {$username} updated successfully");
                 } else {
-                    //$this->cliWrite("Error updating data for Username: {$username}", 'red');
                     Log::error("Error updating data for Username: {$username}");
                 }
             } else {

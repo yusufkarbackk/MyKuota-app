@@ -30,42 +30,48 @@ class checkSites extends Command
     {
         $accounts = Account::where('is_complete', '=', 0)
             ->where('status', '=', 'in use')
+            ->where('error_log', '=', '')
+            ->where('update_status', '=', '')
             ->get()
             ->toArray();
 
         if (empty($accounts)) {
-            $this->cliWrite("No accounts to check", 'yellow');
+            dump("No accounts to check", 'yellow');
         } else {
             foreach ($accounts as $account) {
 
                 try {
-                    dump("Checking account: " . $account['username']);
+                    dump("Creating account: " . $account['username']);
 
                     $decryptedPassword = Crypt::decryptString($account['password']);
-                    $result = shell_exec(
-                        'python C:\\laragon\\www\\dev\\MyKuota-script\\create_new_client.py' . " " .
+                    $result = exec(
+                        'python ' . getenv("SCRIPT_PATH") . "create_new_client.py " .
                         escapeshellarg($account['username']) . " " .
                         escapeshellarg($decryptedPassword)
                     );
 
                     $resultData = json_decode($result, true);
                     //log_message('error', "status: " . print_r($resultData, true));
-
+                    dump($resultData);
+                    $updateData = [];
                     if ($resultData['status'] == 'success') {
                         //die($result);
-
-                        $account->quota = $resultData['quota'];
-                        $account->chrome_profile = $resultData['chrome_profile'];
-                        $account->profile_path = $resultData['profile_path'];
-                        $account->complete = 'complete';
-                        $account->update_status = 'success';
-
+                        $updateData = [
+                            'quota' => $resultData['quota'],
+                            'chrome_profile' => $resultData['chrome_profile'],
+                            'profile_path' => $resultData['profile_path'],
+                            'complete' => 'complete',
+                            'update_status' => 'success',
+                        ];
                     } else {
-                        $account->update_status = 'failed';
-                        $account->error_log = $resultData['message'];
-
-                        //log_message('error', "Playwright script failed for data ID: {$account['username']}");
+                        $updateData = [
+                            'update_status' => 'failed',
+                            'error_log' => $resultData['message'],
+                        ];
                     }
+                    $accountWillUpdate = Account::find($account['id']);
+                    $accountWillUpdate->update($updateData);
+
                 } catch (\Throwable $th) {
                     Log::error("Error in checking account: " . $account['username'] . " - " . $th->getMessage());
                 }

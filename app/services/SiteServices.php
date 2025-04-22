@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\History;
 use App\Models\Site;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -59,10 +60,10 @@ class SiteServices
         $filePath = $file->storeAs('uploads', $file->hashName());
 
         if (($handle = fopen(storage_path("app/{$filePath}"), "r")) !== false) {
-            $headers = fgetcsv($handle, 0, ';');
+            $headers = fgetcsv($handle, 0, ',');
 
             try {
-                while (($row = fgetcsv($handle, 0, ';')) !== false) {
+                while (($row = fgetcsv($handle, 0, ',')) !== false) {
                     $csvData[] = array_combine($headers, $row);
                     $lastRow = end($csvData);
                     //dd($lastRow);
@@ -74,7 +75,8 @@ class SiteServices
 
                     // Check if site already exists
                     if (Site::where('site', $site)->exists()) {
-                        return redirect()->to(path: '/sites')->with('error', $site . ' already exists');
+                        //return redirect()->to(path: '/sites')->with('error', $site . ' already exists');
+                        continue;
                     }
 
                     // Check if account exists
@@ -83,7 +85,8 @@ class SiteServices
                     if ($existingAccount) {
                         // If number exists but is 'in use', reject it
                         if ($existingAccount->status == 'in use') {
-                            return redirect()->to(path: '/sites')->with('error', "{$existingAccount->phone_number} is in use");
+                            //return redirect()->to(path: '/sites')->with('error', "{$existingAccount->phone_number} is in use");
+                            continue;
                         } else {
                             // Assign existing account to new site
                             $site = Site::create([
@@ -118,9 +121,11 @@ class SiteServices
                     }
                 }
 
-                // // Run Windows Task Scheduler command (Ensure task exists)
-                // $taskName = 'run spark command';
-                // exec("schtasks /run /tn \"$taskName\"");
+                // Run Windows Task Scheduler command (Ensure task exists)
+                //$taskName = 'create task';
+                shell_exec('schtasks /run /tn "create task"');
+
+                // Artisan::call('app:check-sites');
 
                 return redirect()->to(path: '/sites')->with('success', 'Sites created successfully!');
 
@@ -134,7 +139,7 @@ class SiteServices
     {
         // Fetch history data from the History model
         $historyData = History::where('account_id', $accountId)
-            ->orderBy('created_at', 'asc') // Ensure chronological order
+            ->orderBy('created_at', 'asc') // Ensure chronological orde     r
             ->get(['quota', 'created_at', 'action']);
 
         $usageData = [];
