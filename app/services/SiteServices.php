@@ -140,7 +140,7 @@ class SiteServices
         // Fetch history data from the History model
         $historyData = History::where('account_id', $accountId)
             ->orderBy('created_at', 'asc') // Ensure chronological orde     r
-            ->get(['quota', 'created_at', 'action']);
+            ->get();
 
         $usageData = [];
         $previousQuota = null;
@@ -206,5 +206,4 @@ class SiteServices
 
 
     }
-
 }

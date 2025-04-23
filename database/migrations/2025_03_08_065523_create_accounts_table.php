@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone_number');
             $table->string('status')->default('available');
-            $table->integer('quota')->nullable();
+            $table->float('quota')->nullable();
+            $table->float('total_usage')->nullable();
             $table->string('chrome_profile')->default('');
             $table->string('profile_path')->default('');
             $table->string('update_status')->default('');

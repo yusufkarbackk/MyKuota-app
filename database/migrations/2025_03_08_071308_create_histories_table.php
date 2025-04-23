@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,9 +13,9 @@ return new class extends Migration
         Schema::create('histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained('accounts');
-            $table->string('phone_number');
-            $table->integer('quota');
-            $table->string('action')->default("");
+            $table->string('quota_usage')->default('');
+            $table->integer('quota')->default(0);
+            $table->string('flag')->default('');
             $table->timestamps();
         });
     }

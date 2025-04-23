@@ -58,7 +58,7 @@ class CreateSites extends Command
                         'quota' => $resultData['quota'],
                         'chrome_profile' => $resultData['chrome_profile'],
                         'profile_path' => $resultData['profile_path'],
-                        'is_complete' => 1,
+                        'is_complete' => true,
                         'update_status' => 'success'
                     ])
                 ) {

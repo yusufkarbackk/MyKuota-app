@@ -43,6 +43,7 @@ Route::get('/sites/{id}/edit', [SiteController::class, 'edit'])->name('sites.edi
 Route::put('/sites/{id}', [SiteController::class, 'update'])->name('sites.update');
 Route::get('/sites/{id}/detail', [SiteController::class,'show'])->name('sites.detail');
 Route::get('/sites/unupdated', [SiteController::class, 'showUnupdatedClients'])->name('sites.unUpdated');
+Route::get('/sites/manual-update', [SiteController::class, 'manualUpdatSites'])->name('sites.manualUpdate');
 Route::get('/downloadAccountCSVTemplate', [TemplateController::class, 'downloadAccountCSVTemplate']);
 Route::get('/downloadSiteCSVTemplate', [TemplateController::class, 'downloadSitesCSVTemplate']);
 Route::get('/testQuery', [QueryTesting::class, 'testQuery']);

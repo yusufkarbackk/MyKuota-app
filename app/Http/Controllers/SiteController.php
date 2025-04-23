@@ -22,7 +22,9 @@ class SiteController extends Controller
     public function index()
     {
         $topUsage = Site::orderBy('usage', 'desc')->limit(5)->get();
-        $sites = Site::with('account')->get();
+        $sites = Site::with('account')->whereHas('account', function ($query) {
+            $query->where('update_status', '=', 'success');
+        })->get();
         return view('sites.index', compact('sites', 'topUsage'));
     }
 
@@ -262,7 +264,18 @@ class SiteController extends Controller
             ->where('accounts.update_status', 'failed')
             ->where('accounts.status', '!=', 'terminated')
             ->get();
-
+        //dd($sites);
         return view('sites.unUpdatedSites', ['sites' => $sites]);
     }
+
+    public function manualUpdatSites()
+    {
+        try {
+            shell_exec('schtasks /run /tn "manual update"');
+            return redirect()->to(path: '/sites')->with('success', 'Manual update is running');
+        } catch (\Throwable $th) {
+            return redirect()->to(path: '/sites')->with('error', 'An error occurred while updating data: ' . $th->getMessage());
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ class Account extends Model
         'phone_number',
         'status',
         'quota',
+        'total_usage',
         'chrome_profile',
         'profile_path',
         'update_status',

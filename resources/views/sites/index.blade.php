@@ -60,10 +60,6 @@
                     <a href="{{ route('sites.unUpdated') }}">
                         <button class="btn btn-primary">Check Not Updated Sites</button>
                     </a>
-                    <a href="">
-                        <button class="btn btn-danger" id="delete-selected" disabled>Delete Selected</button>
-                    </a>
-
                 </div>
             </div>
         </div>
@@ -256,6 +252,4 @@
             setInterval(updateChart, 60000); // Update every 60 seconds
         });
     </script>
-
-
 @endpush

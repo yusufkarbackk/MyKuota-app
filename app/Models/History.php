@@ -13,9 +13,9 @@ class History extends Model
 
     protected $fillable = [
         'account_id',
-        'phone_number',
+        'quota_usage',
         'quota',
-        'action',
+        'flag'
     ];
     public function account()
     {
