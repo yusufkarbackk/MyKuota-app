@@ -28,15 +28,18 @@ class checkSites extends Command
      */
     public function handle()
     {
-        $accounts = Account::where('is_complete', '=', 0)
+        $accounts = Account::where('is_complete', '=', false)
             ->where('status', '=', 'in use')
-            ->where('error_log', '=', '')
-            ->where('update_status', '=', '')
+            ->where('update_status', '=', 'failed')
+            ->where(function ($query) {
+                $query->where('error_log', '!=', '')
+                    ->orWhere('error_log', '=', '');
+            })
             ->get()
             ->toArray();
 
         if (empty($accounts)) {
-            dump("No accounts to check", 'yellow');
+            dump("No accounts to check");
         } else {
             foreach ($accounts as $account) {
 

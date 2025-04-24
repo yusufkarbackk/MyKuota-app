@@ -8,14 +8,14 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Crypt;
 use Log;
 
-class manualUpdateData extends Command
+class updateClient extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:manual-update-data';
+    protected $signature = 'app:update-client';
 
     /**
      * The console command description.
@@ -31,10 +31,9 @@ class manualUpdateData extends Command
     {
         $accountModel = new Account();
         $accounts = Account::where('status', '=', 'in use')
-            ->where('update_status', '=', 'failed')
             ->where('is_complete', '=', true)
             ->get()
-            ->toArray();    
+            ->toArray();
         try {
             foreach ($accounts as $account) {
                 $site = trim($account['Site']);
@@ -99,11 +98,12 @@ class manualUpdateData extends Command
                         'complete' => 'complete',
                         'chrome_profile' => $resultData['chrome_profile'],
                     ]);
-                    Log::error("Playwright script failed for Username: {$username}");
+                    Log::error("Update failed for Username: {$username}");
                 }
             }
         } catch (\Throwable $th) {
             //throw $th;
+            Log::error("Catch for Username: {$username}");
         }
     }
 }

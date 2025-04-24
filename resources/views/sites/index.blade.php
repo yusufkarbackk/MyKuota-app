@@ -88,8 +88,8 @@
                         </td>
                         <td>{{ $site->company }}</td>
                         <td>{{ $site->account->phone_number }}</td>
-                        <td>{{ $site->account->quota }}</td>
-                        <td>{{ $site->usage }}</td>
+                        <td>{{ $site->account->quota }} GB</td>
+                        <td>{{ $site->account->total_usage }}</td>
                         <td>{{ $site->account->updated_at }}</td>
                         <td>
                             <form action="{{ route('sites.delete', $site->id) }}" method="POST"
