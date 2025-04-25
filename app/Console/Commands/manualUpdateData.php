@@ -45,7 +45,7 @@ class manualUpdateData extends Command
                 $currentUsage = trim($account['total_usage']);
                 $decryptedPassword = Crypt::decryptString($password);
 
-                $command = "python " . escapeshellarg("C:\\Users\\Administrator\\dev\\MyKuota-script\\update_client.py") . " " .
+                $command = "python " . escapeshellarg("C:\\xampp\\MyKuota-script\\update_client.py") . " " .
                     escapeshellarg($username) . " " .
                     escapeshellarg($decryptedPassword);
 
