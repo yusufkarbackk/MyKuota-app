@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-body">
             <div class="col-6">
-                <h3 class="card-title">Site Details</h3>
+                <h3 class="card-title my-3">Site Details</h3>
             </div>
 
             <div class="table-responsive">
@@ -36,7 +36,7 @@
                 </table>
             </div>
 
-            <!-- Usage Data -->
+            <!-- Usage Data
             <div class="col-6 mt-5">
                 <h3 class="card-title">Usage Data</h3>
                 <table class="table">
@@ -48,7 +48,7 @@
                     </tr>
 
                 </table>
-            </div>
+            </div> -->
 
             <!-- History Data -->
             <div class="col-6 mt-5">

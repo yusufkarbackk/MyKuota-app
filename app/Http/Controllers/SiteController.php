@@ -21,10 +21,18 @@ class SiteController extends Controller
     }
     public function index()
     {
-        $topUsage = Site::orderBy('usage', 'desc')->limit(5)->get();
-        $sites = Site::with('account')->whereHas('account', function ($query) {
-            $query->where('update_status', '=', 'success');
-        })->get();
+        $topUsage = Site::join('accounts', 'sites.account_id', '=', 'accounts.id')
+            ->select('sites.id', 'sites.site', 'sites.company', 'accounts.total_usage')
+            ->orderBy('accounts.total_usage', 'desc')
+            ->limit(5)
+            ->get();
+        //$topUsage = Site::orderBy('usage', 'desc')->limit(5)->get();
+        $sites = Site::select('sites.*') // ensures we get only Site model columns
+            ->join('accounts', 'sites.account_id', '=', 'accounts.id')
+            ->where('accounts.update_status', 'success')
+            ->orderBy('accounts.quota', 'asc') // or 'asc'
+            ->with('account')
+            ->get();
         return view('sites.index', compact('sites', 'topUsage'));
     }
 

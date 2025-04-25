@@ -170,9 +170,6 @@ class SiteServices
 
     public function show($id)
     {
-        // Initialize Custom Library
-
-        // Fetch client site details with account information
         // Fetch the site based on the given ID
         $site = Site::with('account')->findOrFail($id);
         // Find the correct account based on the phone number (or any correct identifier)
@@ -184,19 +181,6 @@ class SiteServices
         if (!$site) {
             return redirect()->back()->with('error', 'Client not found.');
         }
-
-        // Fetch site history with join query
-        // $siteHistory = DB::table('site_history')
-        //     ->leftJoin('detail_site', 'detail_site.id', '=', 'site_history.site_id')
-        //     ->leftJoin('accounts', 'accounts.id', '=', 'site_history.account_id')
-        //     ->where('site_history.site_id', $client->site_id)
-        //     ->orderBy('site_history.created_at', 'desc')
-        //     ->get(['detail_site.id AS site_id', 'detail_site.site', 'site_history.created_at', 'accounts.phoneNumber']);
-
-        // Fetch history data
-        // $history = History::where('account_id', $site->account->id)
-        //     ->orderBy('created_at', 'desc')
-        //     ->get();
 
         // Fetch usage data using the CustomLibrary
         $usage = $this->getMonthlyUsage($id);

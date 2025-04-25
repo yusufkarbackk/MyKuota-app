@@ -8,13 +8,13 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                 <li class="nav-item">
                     <a href="/sites" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="fa-solid fa-location-dot"></i>
                         <p>Sites</p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/accounts" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="fa-brands fa-twitter"></i>
                         <p>Accounts</p>
                     </a>
                 </li>

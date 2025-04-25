@@ -37,7 +37,7 @@
                                 <tr>
                                     <td>{{$data->site}}</td>
                                     <td>{{$data->company}}</td>
-                                    <td>{{$data->usage}}</td>
+                                    <td>{{$data->total_usage}} GB</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -89,7 +89,19 @@
                         <td>{{ $site->company }}</td>
                         <td>{{ $site->account->phone_number }}</td>
                         <td>{{ $site->account->quota }} GB</td>
-                        <td>{{ $site->account->total_usage }}</td>
+                        @if ($site->account->quota > 5)
+                            <td>
+                                <button class="btn btn-success">Normal</button>
+                            </td>
+                        @elseif($site->account->quota < 5)
+                            <td>
+                            <button class="btn btn-danger">Danger</button>
+                            </td>
+                        @else
+                            <td>
+                            <button class="btn btn-warning">Warning</button>
+                            </td>
+                        @endif
                         <td>{{ $site->account->updated_at }}</td>
                         <td>
                             <form action="{{ route('sites.delete', $site->id) }}" method="POST"
