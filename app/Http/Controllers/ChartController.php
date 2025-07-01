@@ -22,7 +22,7 @@ class ChartController extends Controller
             ->count();
 
         return response()->json([
-            'success' => $success,
+            'success' => $success,  
             'failure' => $failure
         ], 200);
     }

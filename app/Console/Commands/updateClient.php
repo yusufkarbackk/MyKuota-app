@@ -37,6 +37,7 @@ class updateClient extends Command
         if (empty($accounts)) {
             Log::info('no data');
         } else {
+            dump(count($accounts));
             try {
                 foreach ($accounts as $account) {
                     $username = trim($account['username']);
@@ -44,7 +45,7 @@ class updateClient extends Command
                     $currentQuota = trim($account['quota']);
                     $currentUsage = trim($account['total_usage']);
                     $decryptedPassword = Crypt::decryptString($password);
-
+                    dump($username);
                     $command = "python " . escapeshellarg("C:\\xampp\\MyKuota-script\\update_client.py") . " " .
                         escapeshellarg($username) . " " .
                         escapeshellarg($decryptedPassword);
@@ -59,6 +60,8 @@ class updateClient extends Command
                             try {
                                 $accountModel->where('id', $account['id'])->update([
                                     'quota' => $resultData['quota'],
+                                    'update_status' =>'success',
+                                    'error_log' => ''
                                 ]);
 
                                 History::create([
@@ -87,6 +90,8 @@ class updateClient extends Command
                                 $accountModel->where('id', $account['id'])->update([
                                     'quota' => $resultData['quota'],
                                     'total_usage' => $updatedUsage,
+                                    'update_status' =>'success',
+                                    'error_log' => ''
                                 ]);
 
                                 History::create([
@@ -105,8 +110,6 @@ class updateClient extends Command
                         $accountModel->where('id', $account['id'])->update([
                             'update_status' => 'failed',
                             'error_log' => $resultData['message'],
-                            'complete' => 'complete',
-                            'chrome_profile' => $resultData['chrome_profile'],
                         ]);
                         Log::error("Update failed for Username: {$username}");
                     }
